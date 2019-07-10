@@ -1,4 +1,11 @@
 #!/usr/bin/python
+# Author: Scott Chubb scott.chubb@netapp.com
+# Written for Python 3.4 and above
+# No warranty is offered, use at your own risk.  While these scripts have been tested in lab situations, all use cases cannot be accounted for.
+# Change sf-mvip.demo.netapp.com to your MVIP name or IP
+# Change admin to your user account
+# Change Netapp1! to your password
+
 import json
 import base64
 import argparse
@@ -50,6 +57,9 @@ def build_auth(mvip, user, user_pass):
     return headers, url    
 
 def build_cluster_hardware_payload(headers, url):
+    """
+    GetClusterHardwareInfo API call to get service tag
+    """
     s_tag_dict = {}
     payload = json.dumps({"method": "GetClusterHardwareInfo","params":{},"id": 1})
     cluster_hardware_json = connect_cluster(headers, url, payload)
@@ -61,6 +71,9 @@ def build_cluster_hardware_payload(headers, url):
     return s_tag_dict
 
 def build_active_nodes_payload(headers, url):
+    """
+    ListActiveNodes API call to get node name
+    """    
     node_dict = {}
     payload = json.dumps({"method": "ListActiveNodes","params":{},"id": 1})
     active_nodes_json = connect_cluster(headers, url, payload)
@@ -77,6 +90,9 @@ def connect_cluster(headers, url, payload):
     return response_json
 
 def merge_dictionary(s_tag_dict, node_dict):
+    """
+    Merge the dictionaries with the entries into a single one
+    """
     node_name_s_tag_node_id = {k:v for k in s_tag_dict.keys() for v in zip(s_tag_dict.values(),node_dict.values())}
     return node_name_s_tag_node_id
     
