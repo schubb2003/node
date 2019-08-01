@@ -16,12 +16,14 @@ import argparse
 import requests
 from getpass import getpass
 
+node_list = ["solidfire-bel-001","solidfire-bel-002","solidfire-bel-004","solidfire-bel-005"]
+
 def get_inputs():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-m', type=str,
-                        required=True,
-                        metavar='mvip',
-                        help='MVIP/node name or IP')
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('-m', type=str,
+                        # required=True,
+                        # metavar='mvip',
+                        # help='MVIP/node name or IP')
     parser.add_argument('-u', type=str,
                         required=True,
                         metavar='username',
@@ -32,16 +34,14 @@ def get_inputs():
                         help='password for user')
     args = parser.parse_args()
 
-    mvip = args.m
+    #mvip = args.m
     user = args.u
     if not args.p:
-        user_pass = getpass("Enter password for user: {} "
-                            "on cluster {}: ".format(user,
-                                                    mvip))
+        user_pass = getpass("Enter password for user: {}".format(user))
     else:
         user_pass = args.p
     
-    return mvip, user, user_pass
+    return user, user_pass
 
 def build_auth(mvip, user, user_pass):
     auth = (user + ":" + user_pass)
@@ -97,13 +97,15 @@ def merge_dictionary(s_tag_dict, node_dict):
     node_name_s_tag_node_id = {k:v for k in s_tag_dict.keys() for v in zip(s_tag_dict.values(),node_dict.values())}
     return node_name_s_tag_node_id
     
-def main():
-    mvip, user, user_pass = get_inputs()
-    headers, url = build_auth(mvip, user, user_pass)
-    s_tag_dict = build_cluster_hardware_payload(headers, url)
-    node_dict = build_active_nodes_payload(headers, url)
-    node_name_s_tag_node_id = merge_dictionary(s_tag_dict, node_dict)
-    print(\n\nnode_name_s_tag_node_id)
+def main(user, user_pass, node_list):
+    for node in node_list:
+        mvip=node
+        headers, url = build_auth(mvip, user, user_pass)
+        s_tag_dict = build_cluster_hardware_payload(headers, url)
+        node_dict = build_active_nodes_payload(headers, url)
+        node_name_s_tag_node_id = merge_dictionary(s_tag_dict, node_dict)
+        print("\n\n{}".format(node_name_s_tag_node_id))
     
 if __name__ == "__main__":
-    main()
+    user, user_pass = get_inputs()
+    main(user, user_pass)
